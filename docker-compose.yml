@@ -1,0 +1,34 @@
+version: "3.8"
+
+services:
+  db:
+    image: mysql:8.0
+    container_name: my-ai-summary-db-container
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root1234
+      MYSQL_DATABASE: my-ai-summary-db
+      MYSQL_USER: user
+      MYSQL_PASSWORD: user1234
+    ports:
+      - "3309:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: my-ai-summary-backend-container
+    ports:
+      - "3000:3000"
+    depends_on:
+      - db
+    environment:
+      - DATABASE_URL=mysql://user:user1234@localhost:3309/my-ai-summary-db
+    volumes:
+      - ./backend:/app
+    command: npm run start:dev
+
+volumes:
+  mysql_data:
